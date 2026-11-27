@@ -242,7 +242,7 @@ document.getElementById('clr').onclick=function(){inp.value='';document.getEleme
       audioCtx=audioCtx||new AC();
       if(audioCtx.state==='suspended')audioCtx.resume();
       var osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
-      osc.type='sine';osc.frequency.value=880;
+      osc.type='sawtooth';osc.frequency.value=880;
       gain.gain.setValueAtTime(0.0001,audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.18,audioCtx.currentTime+0.03);
       gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.45);
