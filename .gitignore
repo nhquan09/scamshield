@@ -1,0 +1,13 @@
+# Flutter sinh ra bởi ./setup.sh
+/android/
+/ios/
+/build/
+/.dart_tool/
+/.flutter-plugins*
+/.packages
+/pubspec.lock
+/.metadata
+/.idea/
+*.iml
+/.setup_bak/
+node_modules/
