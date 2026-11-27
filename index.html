@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ScamShield – Phát hiện tin giả và lừa đảo</title>
+<meta name="theme-color" content="#102a27">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ScamShield">
+<link rel="manifest" href="./manifest.webmanifest" id="scamshield-manifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--tx:#1b2333;--mut:#5b6678;--bd:#dde3ee;--ac:#2457d6;--ok:#1a8f4c;--wn:#c77a00;--bad:#d32f3f;--okbg:#e6f6ec;--wnbg:#fff3dc;--badbg:#fdeaec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--card:#18202f;--tx:#e8ecf5;--mut:#9aa6bb;--bd:#2a3550;--ac:#7aa2ff;--ok:#4cd387;--wn:#ffb938;--bad:#ff6b7a;--okbg:#10301f;--wnbg:#3a2b0a;--badbg:#3a1419}}
+:root[data-theme="dark"]{--bg:#0f1420;--card:#18202f;--tx:#e8ecf5;--mut:#9aa6bb;--bd:#2a3550;--ac:#7aa2ff;--ok:#4cd387;--wn:#ffb938;--bad:#ff6b7a;--okbg:#10301f;--wnbg:#3a2b0a;--badbg:#3a1419}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 8px}
+.sub{color:var(--mut);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
+textarea{width:100%;min-height:130px;resize:vertical;border:1px solid var(--bd);border-radius:10px;padding:12px;background:var(--bg);color:var(--tx);font:inherit}
+textarea:focus{outline:2px solid var(--ac)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+button{font:inherit;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 14px;cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+button.chip{font-size:.88rem;padding:6px 10px;color:var(--mut)}
+.lab{font-size:.85rem;color:var(--mut);margin-top:12px}
+#res{display:none}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.score{font-size:2.6rem;font-weight:800;line-height:1}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:700}
+.bar{height:12px;border-radius:99px;background:var(--bd);overflow:hidden;margin:12px 0}
+.bar i{display:block;height:100%;width:0;transition:width .5s}
+.lv-ok{--c:var(--ok);--b:var(--okbg)}.lv-wn{--c:var(--wn);--b:var(--wnbg)}.lv-bad{--c:var(--bad);--b:var(--badbg)}
+.badge{background:var(--b);color:var(--c)}.score{color:var(--c)}.bar i{background:var(--c)}
+ul.rs{list-style:none;padding:0;margin:0}
+ul.rs li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--bd)}
+ul.rs li:first-child{border-top:0}
+.w{flex:none;min-width:46px;text-align:center;font-weight:700;color:var(--c);background:var(--b);border-radius:8px;height:fit-content;padding:2px 6px}
+.adv{background:var(--b);border-radius:10px;padding:10px 12px;margin-top:12px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
+.flow span{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:4px 9px}
+small{color:var(--mut)}
+
+/* ScamShield fresh visual system */
+:root{--bg:#f3f5f1;--card:#fffefa;--tx:#182b2a;--mut:#647572;--bd:#dbe5df;--ac:#126b61;--ok:#187d54;--wn:#b96b17;--bad:#c83d4d;--okbg:#e5f4eb;--wnbg:#fff1dc;--badbg:#fde9eb;--ink:#153c38;--lime:#d8f36a}
+body{background:radial-gradient(ellipse at 8% 0%,#e4f0e8 0,transparent 34%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em}
+main{max-width:980px;padding:28px 20px 56px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px;padding:25px 27px;border-radius:26px;background:var(--ink);color:#f6fbf7;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:210px;height:210px;border:34px solid rgba(216,243,106,.14);border-radius:50%;right:10%;top:-110px;pointer-events:none}
+.brand{display:flex;gap:14px;align-items:center;position:relative;z-index:1}.brand-mark{width:52px;height:52px;border-radius:17px;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:27px;font-weight:900;box-shadow:0 8px 25px #0002}
+.hero h1{font-size:clamp(1.7rem,4vw,2.35rem);letter-spacing:-.06em;margin:0}.hero .sub{color:#c1d5ce;margin:5px 0 0;max-width:520px}
+.hero-actions{display:flex;gap:9px;align-items:center;position:relative;z-index:1;flex-wrap:wrap}.hero button{border-color:#54716b;background:#244c46;color:#f8fffb}.hero button.p{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.card{border:1px solid #dce6df;border-radius:22px;padding:22px;margin-bottom:17px;background:rgba(255,254,250,.94);box-shadow:0 8px 26px rgba(22,54,46,.045)}
+h2{font-size:1.12rem;letter-spacing:-.035em;margin-bottom:12px}.section-kicker{font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--ac);margin-bottom:7px}
+textarea{min-height:145px;border:1px solid #d8e3dc;border-radius:15px;background:#f8faf6;padding:15px}
+button{border-radius:12px;border-color:#d6e1da;padding:10px 15px;font-weight:650;transition:transform .15s,box-shadow .15s}button:hover{transform:translateY(-1px);box-shadow:0 6px 14px #183e3310}button.p{background:var(--ac);border-color:var(--ac)}
+input[type=checkbox]{accent-color:var(--ac);width:17px;height:17px;vertical-align:middle}
+#watchCard{background:linear-gradient(135deg,#faffef,#fffefa 58%,#eef8f3);border-color:#d6e6ce}
+.watch-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap}.watch-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#eaf2e8;border:1px solid #d6e5d6;border-radius:16px;padding:12px 14px}
+.switch{position:relative;display:inline-flex;align-items:center;gap:9px;font-weight:750;cursor:pointer}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-ui{width:48px;height:28px;background:#bdcbc2;border-radius:30px;display:inline-block;position:relative;transition:.2s}.switch-ui:after{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 4px #0002;transition:.2s}.switch input:checked+.switch-ui{background:var(--ac)}.switch input:checked+.switch-ui:after{transform:translateX(20px)}
+.app-picks{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.app-picks label{background:#fff;border:1px solid #dce6df;border-radius:999px;padding:8px 13px;font-size:.92rem}
+.consent-box{padding:12px 14px;background:#fff;border:1px dashed #cbdacf;border-radius:13px;color:#50635b;font-size:.9rem}
+#watchStatus{padding:11px 14px;border-radius:12px;background:#edf4ee;color:#31564b;font-size:.9rem;margin:13px 0 0}
+.auth-card{display:grid;grid-template-columns:1fr minmax(230px,330px);gap:24px;align-items:center;background:#f1f5f3}
+.auth-copy h2{font-size:1.35rem}.auth-copy p{color:var(--mut);max-width:510px}.auth-providers{display:grid;gap:9px}.auth-providers button{width:100%;display:flex;justify-content:center;gap:10px;background:#fff;border-color:#d5e0d9}.provider-icon{font-weight:900;font-size:1.1rem}.auth-note{font-size:.78rem;color:var(--mut);text-align:center;margin:5px 0 0}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;background:#e6eee8;border-radius:14px;margin-bottom:12px}
+.auth-tab{background:transparent;border:0;color:#60736b;padding:9px;border-radius:10px}
+.auth-tab.active{background:#fffefa;color:#17483f;box-shadow:0 2px 8px #173d3012}
+.auth-label{display:block;font-size:.83rem;font-weight:700;color:#425d53;margin:10px 0 5px}
+.auth-input{width:100%;border:1px solid #d5e0d9;background:#fffefa;color:#18352f;border-radius:12px;padding:12px 13px;font:inherit;outline:none}
+.auth-input:focus{border-color:var(--ac);box-shadow:0 0 0 3px #126b6118}
+.auth-submit{width:100%;margin-top:3px}
+.auth-local-note{font-size:.82rem;line-height:1.5;background:#e7f0e8;color:#456057;padding:11px 13px;border-radius:13px;margin-top:14px}
+.account-session{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px;background:#eaf2e8;border-radius:15px}
+.account-avatar{width:42px;height:42px;border-radius:14px;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-weight:900;font-size:1.1rem}
+.account-session>div:nth-child(2){flex:1;min-width:120px}.account-session p{margin:2px 0}
+@media(max-width:650px){main{padding:14px 12px 35px}.hero{padding:20px;border-radius:20px}.card{padding:17px;border-radius:18px}.auth-card{grid-template-columns:1fr}.hero-actions{width:100%}.hero-actions button{flex:1}}
+@media(prefers-color-scheme:dark){body{background:#101b1a}.card{background:#182724;border-color:#2c423a}.hero{background:#0d2824}.auth-card{background:#182724}textarea{background:#111f1c;border-color:#354b42}.app-picks label,.consent-box,.auth-providers button{background:#172723;border-color:#354b42;color:#e7f2ec}.watch-controls,#watchStatus{background:#20372d;color:#d5e8dc;border-color:#385144}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero">
+  <div class="brand"><div class="brand-mark">S</div><div><h1>ScamShield</h1><p class="sub">Lớp khiên thông minh trước những cú lừa số.</p></div></div>
+  <div class="hero-actions">
+    <button id="installBtn" hidden>📲 Cài đặt App</button>
+    <button id="headerLogin" class="p">Đăng nhập / Tạo tài khoản ↗</button>
+  </div>
+</header>
+<section class="card auth-card" id="authCard">
+  <div class="auth-copy">
+    <div class="section-kicker">Khu vực tài khoản</div>
+    <h2 id="authHeading">Tạo không gian ScamShield của riêng bạn.</h2>
+    <p>Đăng ký hoặc đăng nhập bằng email và mật khẩu để lưu hồ sơ trên trình duyệt đang sử dụng.</p>
+    <div class="auth-local-note">🔒 Bản GitHub Pages lưu tài khoản cục bộ trên thiết bị này. Chưa có máy chủ để đồng bộ tài khoản giữa các thiết bị.</div>
+  </div>
+  <div class="auth-providers">
+    <div class="auth-tabs" role="tablist" aria-label="Chọn hình thức tài khoản">
+      <button type="button" class="auth-tab active" id="registerTab" aria-selected="true">Đăng ký</button>
+      <button type="button" class="auth-tab" id="loginTab" aria-selected="false">Đăng nhập</button>
+    </div>
+    <form id="accountForm" autocomplete="on">
+      <label class="auth-label" for="accountName" id="nameLabel">Tên hiển thị</label>
+      <input class="auth-input" id="accountName" name="name" type="text" maxlength="40" placeholder="Tên của bạn" autocomplete="name" required>
+      <label class="auth-label" for="accountEmail">Email</label>
+      <input class="auth-input" id="accountEmail" name="email" type="email" placeholder="ban@example.com" autocomplete="email" required>
+      <label class="auth-label" for="accountPassword">Mật khẩu</label>
+      <input class="auth-input" id="accountPassword" name="password" type="password" minlength="8" placeholder="Ít nhất 8 ký tự" autocomplete="new-password" required>
+      <div class="row"><button type="submit" class="p auth-submit" id="accountSubmit">Tạo tài khoản</button></div>
+    </form>
+    <div class="account-session" id="accountSession" hidden>
+      <div class="account-avatar" id="accountAvatar">S</div>
+      <div><strong id="sessionName">Người dùng</strong><p id="sessionEmail" class="auth-note"></p></div>
+      <button type="button" id="logoutButton">Đăng xuất</button>
+    </div>
+    <p class="auth-note" id="authStatus" role="status" aria-live="polite">Không dùng đăng nhập Google hoặc Apple.</p>
+  </div>
+</section>
+<p class="sub">Phân tích nội dung đáng ngờ bằng các dấu hiệu ngôn ngữ và đường dẫn, hiển thị lý do thay vì chỉ đưa ra kết luận.</p>
+
+<section class="card">
+<h2>Nhập nội dung cần kiểm tra</h2>
+<textarea id="inp" placeholder="Ví dụ: tin nhắn ngân hàng, tin trúng thưởng, bài đăng chia sẻ, đường link…"></textarea>
+<div class="row"><button class="p" id="go">Phân tích</button><button id="clr">Xóa</button></div>
+<div class="lab">Thử nhanh với mẫu:</div>
+<div class="row" id="ex"></div>
+</section>
+
+<section class="card" id="res" aria-live="polite">
+<div class="top"><div class="score" id="sc">0</div><div><span class="badge" id="lv"></span><div><small>Điểm rủi ro trên thang 100</small></div></div></div>
+<div class="bar"><i id="br"></i></div>
+<h2>Dấu hiệu phát hiện được</h2>
+<ul class="rs" id="rs"></ul>
+<div class="adv" id="adv"></div>
+</section>
+
+
+<section class="card" id="watchCard">
+  <div class="watch-head"><div><div class="section-kicker">Bảo vệ chủ động</div><h2>Giám sát thông báo</h2><p class="sub">Chọn nguồn bạn cho phép. ScamShield chỉ xử lý thông báo từ ứng dụng đã được đồng ý.</p></div>
+    <div class="watch-controls">
+      <label class="switch"><input type="checkbox" id="watchToggle" aria-label="Bật hoặc tắt giám sát"><span class="switch-ui"></span><span id="watchToggleLabel">Đang tắt</span></label>
+      <span style="height:25px;width:1px;background:#cbdacf"></span>
+      <label class="switch"><input type="checkbox" id="soundToggle" checked aria-label="Bật hoặc tắt âm báo"><span class="switch-ui"></span><span>Âm báo</span></label>
+      <button type="button" id="soundTest">Thử âm</button>
+    </div>
+  </div>
+  <div class="app-picks" id="watchApps">
+    <label><input type="checkbox" value="Zalo"> Zalo</label><label><input type="checkbox" value="Messenger"> Messenger</label><label><input type="checkbox" value="SMS"> SMS</label><label><input type="checkbox" value="Email"> Email</label><label><input type="checkbox" value="Khác"> Khác</label>
+  </div>
+  <div class="consent-box"><label><input type="checkbox" id="watchConsent"> Tôi đồng ý cho ScamShield kiểm tra nội dung thông báo từ các ứng dụng đã chọn. Tôi hiểu thông báo có thể chứa dữ liệu riêng tư.</label></div>
+  <p id="watchStatus" role="status"><small>Chưa bật giám sát. Hãy chọn ứng dụng và xác nhận quyền đồng ý.</small></p>
+  <p><small>Để quét khi ứng dụng chạy nền hoặc đóng trang, cần bản Android tích hợp Notification Listener. Website HTML không tự có quyền đọc thông báo từ ứng dụng khác.</small></p>
+</section>
+
+<section class="card">
+<h2>Nguyên lý hoạt động</h2>
+<div class="flow"><span>1. Nhập nội dung</span>→<span>2. Chuẩn hóa văn bản</span>→<span>3. Tách đường link</span>→<span>4. Kiểm tra quy tắc nội dung</span>→<span>5. Kiểm tra quy tắc URL</span>→<span>6. Cộng điểm rủi ro</span>→<span>7. Cảnh báo và khuyến nghị</span></div>
+<p><small>Mỗi dấu hiệu lừa đảo (yêu cầu OTP, đe dọa khóa tài khoản, link rút gọn, tên miền giả mạo ngân hàng…) có một trọng số. Tổng điểm quyết định mức: Thấp (dưới 25), Đáng ngờ (25–54), Nguy hiểm (từ 55). Bản demo chạy hoàn toàn trên trình duyệt, không gửi dữ liệu đi đâu; lớp AI ngôn ngữ có thể gắn thêm để phân tích ngữ cảnh sâu hơn.</small></p>
+</section>
+</main>
+<script>
+var norm=function(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')};
+var esc=function(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var TEXT=[
+[/(otp|ma xac thuc|mat khau|cvv|so the|ma pin)/,30,'Yêu cầu cung cấp OTP, mật khẩu hoặc thông tin thẻ. Ngân hàng thật không bao giờ hỏi qua tin nhắn.'],
+[/(khoa tai khoan|tam khoa|dong bang|bi khoa|huy tai khoan|truy to|lenh bat|bat giu)/,22,'Đe dọa khóa tài khoản hoặc truy cứu để tạo hoảng sợ.'],
+[/(khan cap|ngay lap tuc|trong vong \d+ ?(gio|phut)|het han|con \d+ ?(gio|phut)|nhanh tay)/,14,'Tạo áp lực thời gian để nạn nhân không kịp suy nghĩ.'],
+[/(trung thuong|qua tang|nhan thuong|mien phi|voucher|hoan tien|duoc chon|chuc mung)/,20,'Hứa trúng thưởng, quà tặng hoặc hoàn tiền bất ngờ.'],
+[/(kiem tien|lai suat cao|dau tu|viec nhe luong cao|cong tac vien|nhiem vu|chot don|hoa hong)/,20,'Mời làm việc nhẹ lương cao hoặc đầu tư lãi lớn, thủ đoạn phổ biến.'],
+[/(chuyen khoan|so tai khoan|dat coc|nop phi|phi van chuyen|phi xu ly)/,22,'Yêu cầu chuyển tiền hoặc nộp phí trước.'],
+[/(cong an|vien kiem sat|toa an|buu dien|dien luc|ngan hang|vietcombank|vcb|techcombank|mb ?bank|bidv|vietinbank|agribank|momo|zalopay|shopee|tiktok|viettel|vnpt|bhxh)/,10,'Nhắc đến cơ quan, ngân hàng hoặc nền tảng uy tín. Kẻ lừa đảo thường mạo danh.'],
+[/(zalo|telegram|lien he|goi ngay|hotline)/,10,'Dẫn dụ sang kênh Zalo, Telegram hoặc gọi điện để tránh bị kiểm soát.'],
+[/(chia se ngay|share ngay|truoc khi bi xoa|bi giau|khong muon ban biet|giat gan|tin nong|nghe noi|cuc ky nguy hiem|lan truyen)/,18,'Ngôn ngữ giật gân, kêu gọi chia sẻ gấp. Đặc trưng của tin giả.'],
+[/(chua khoi moi benh|thuoc tien|bao dam 100|chac chan 100%)/,16,'Khẳng định tuyệt đối, thiếu căn cứ khoa học.']
+];
+var SHORT=['bit.ly','tinyurl.com','t.ly','cutt.ly','rebrand.ly','is.gd','s.id','shorturl.at','ow.ly'];
+var TLD=/\.(xyz|top|click|icu|vip|cc|tk|ml|ga|cf|shop|live|site|online|buzz)$/;
+var BRANDS=['vietcombank','techcombank','mbbank','bidv','vietinbank','agribank','momo','zalopay','shopee','tiktok','facebook','google','zalo','paypal','apple'];
+function urls(t){var m=t.match(/(https?:\/\/[^\s]+|www\.[^\s]+|[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|vn|net|org|xyz|top|click|icu|vip|cc|tk|ml|ga|cf|shop|live|site|online|buzz|info|me|ly|io)(\/[^\s]*)?)/gi)||[];return m.map(function(u){return u.replace(/[.,;:!?)]+$/,'')})}
+function checkUrl(u,out){
+var h;try{h=new URL(/^https?:\/\//i.test(u)?u:'https://'+u).hostname.toLowerCase()}catch(e){return}
+var p=h.split('.'),n=p.length,reg=(n>=3&&/^(com|net|org|gov|edu)$/.test(p[n-2])&&p[n-1].length==2)?p.slice(-3):p.slice(-2),lab=reg[0],tag=' ('+h+')';
+if(SHORT.indexOf(h)>-1)out.push([20,'Link rút gọn che giấu địa chỉ thật'+tag+'.']);
+if(/^\d{1,3}(\.\d{1,3}){3}$/.test(h))out.push([30,'Link dùng địa chỉ IP thay vì tên miền'+tag+'.']);
+if(TLD.test(h))out.push([18,'Đuôi tên miền hay bị lạm dụng cho trang lừa đảo'+tag+'.']);
+if(/^http:\/\//i.test(u))out.push([10,'Trang không dùng HTTPS (không mã hóa).']);
+if(u.indexOf('@')>-1)out.push([25,'Link chứa ký tự @ để đánh lừa địa chỉ thật.']);
+if(h.indexOf('xn--')>-1)out.push([25,'Tên miền dùng ký tự giả (punycode)'+tag+'.']);
+if((h.match(/-/g)||[]).length>=2||n>=5)out.push([12,'Tên miền có quá nhiều dấu gạch hoặc tầng phụ'+tag+'.']);
+var h2=h.replace(/0/g,'o').replace(/1/g,'l').replace(/rn/g,'m'),done=false;
+BRANDS.forEach(function(b){if(done)return;
+if(h.indexOf(b)>-1&&lab!==b){out.push([35,'Tên miền chứa thương hiệu “'+b+'” nhưng không phải trang chính thức'+tag+'.']);done=true}
+else if(h.indexOf(b)<0&&h2.indexOf(b)>-1){out.push([30,'Tên miền viết nhái thương hiệu “'+b+'”'+tag+'.']);done=true}})}
+function analyze(t){
+var r=[],n=norm(t),us=urls(t);
+TEXT.forEach(function(x){if(x[0].test(n))r.push([x[1],x[2]])});
+if(us.length){r.push([8,'Có chứa '+us.length+' đường link. Không bấm link từ nguồn lạ.']);us.forEach(function(u){checkUrl(u,r)})}
+var L=t.replace(/[^A-Za-zÀ-ỹ]/g,'');
+if(L.length>20&&(L.replace(/[^A-ZÀ-Ỹ]/g,'').length/L.length)>0.3)r.push([8,'Viết hoa quá nhiều để gây chú ý.']);
+if((t.match(/!/g)||[]).length>=3)r.push([6,'Dùng nhiều dấu chấm than.']);
+var s=Math.min(100,r.reduce(function(a,x){return a+x[0]},0));
+r.sort(function(a,b){return b[0]-a[0]});return{s:s,r:r}}
+function show(t){
+if(!t.trim()){alert('Hãy nhập nội dung cần kiểm tra.');return}
+var a=analyze(t),c=a.s>=55?'bad':a.s>=25?'wn':'ok',res=document.getElementById('res');
+res.className='card lv-'+c;res.style.display='block';
+document.getElementById('sc').textContent=a.s;
+document.getElementById('lv').textContent=c=='bad'?'NGUY HIỂM':c=='wn'?'ĐÁNG NGỜ':'RỦI RO THẤP';
+document.getElementById('br').style.width=a.s+'%';
+document.getElementById('rs').innerHTML=a.r.length?a.r.map(function(x){return '<li><span class="w">+'+x[0]+'</span><span>'+esc(x[1])+'</span></li>'}).join(''):'<li><span>Chưa phát hiện dấu hiệu bất thường. Điều này không đảm bảo an toàn tuyệt đối.</span></li>';
+document.getElementById('adv').innerHTML=c=='bad'?'<b>Khuyến nghị:</b> Không bấm link, không cung cấp OTP hay chuyển tiền. Liên hệ trực tiếp ngân hàng hoặc cơ quan qua số hotline chính thức. Báo cáo tại canhbao.khonggianmang.vn hoặc gọi 156 nếu đã bị lừa.':c=='wn'?'<b>Khuyến nghị:</b> Hãy xác minh nguồn tin qua kênh chính thức trước khi làm theo hoặc chia sẻ.':'<b>Khuyến nghị:</b> Vẫn nên kiểm tra nguồn gửi và không chia sẻ thông tin nhạy cảm.';
+res.scrollIntoView({behavior:'smooth',block:'nearest'})}
+var EX=[
+['Tin ngân hàng giả','[Vietcombank] Tài khoản của quý khách sẽ bị khóa trong vòng 2 giờ. Vui lòng xác thực OTP tại http://vietcombank-xacthuc.top/login để tiếp tục sử dụng.'],
+['Trúng thưởng','CHÚC MỪNG! Bạn đã trúng thưởng iPhone 16. Nhận quà ngay tại bit.ly/nhanqua-24h, nhanh tay kẻo hết hạn! Liên hệ Zalo để nộp phí vận chuyển.'],
+['Tin giả sức khỏe','TIN NÓNG!!! Bác sĩ không muốn bạn biết: uống nước chanh nóng mỗi sáng chữa khỏi mọi bệnh. Chia sẻ ngay trước khi bị xóa!!!'],
+['Tin bình thường','Lớp mình họp phụ huynh lúc 19h thứ Sáu tại phòng A2. Xem chi tiết tại https://www.facebook.com/groups/lop12a2']];
+var ex=document.getElementById('ex'),inp=document.getElementById('inp');
+EX.forEach(function(e){var b=document.createElement('button');b.className='chip';b.textContent=e[0];b.onclick=function(){inp.value=e[1];show(e[1])};ex.appendChild(b)});
+document.getElementById('go').onclick=function(){show(inp.value)};
+document.getElementById('clr').onclick=function(){inp.value='';document.getElementById('res').style.display='none'};
+
+// --- ScamShield: tiếp nhận thông báo có sự đồng ý, phát cảnh báo ---
+(function(){
+  var active=false, selected=new Set(), audioCtx=null;
+  var consent=document.getElementById('watchConsent');
+  var watchToggle=document.getElementById('watchToggle');
+  var soundToggle=document.getElementById('soundToggle');
+  var toggleLabel=document.getElementById('watchToggleLabel');
+  var status=document.getElementById('watchStatus');
+  var appChecks=[].slice.call(document.querySelectorAll('#watchApps input[type="checkbox"]'));
+  function statusText(t){status.textContent=t;}
+  function beep(){
+    if(!soundToggle.checked) return;
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC){statusText('Thiết bị không hỗ trợ phát âm báo bằng trình duyệt.');return;}
+      audioCtx=audioCtx||new AC();
+      if(audioCtx.state==='suspended')audioCtx.resume();
+      var osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+      osc.type='sine';osc.frequency.value=880;
+      gain.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.18,audioCtx.currentTime+0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.45);
+      osc.connect(gain);gain.connect(audioCtx.destination);
+      osc.start();osc.stop(audioCtx.currentTime+0.48);
+    }catch(e){statusText('Không phát được âm báo. Hãy thử nhấn nút Thử âm báo.');}
+  }
+  function notify(title,body){
+    if('Notification' in window && Notification.permission==='granted'){
+      try{new Notification(title,{body:body});}catch(e){}
+    }
+  }
+  function scanNotice(source,text){
+    if(!active || !consent.checked || !selected.has(source)) return;
+    if(!text || !String(text).trim()) return;
+    var result=analyze(String(text));
+    if(result.s>=25){
+      var level=result.s>=55?'NGUY HIỂM':'ĐÁNG NGỜ';
+      statusText('⚠️ '+level+' — '+source+' có dấu hiệu bất thường (điểm '+result.s+'/100).');
+      beep();
+      notify('ScamShield: '+level,'Thông báo từ '+source+' có dấu hiệu cần kiểm tra. Mở ScamShield để xem chi tiết.');
+      show(String(text));
+    }else{
+      statusText('Đã kiểm tra thông báo từ '+source+': chưa thấy dấu hiệu rủi ro rõ ràng.');
+    }
+  }
+  async function enableWatch(){
+    selected=new Set(appChecks.filter(function(c){return c.checked;}).map(function(c){return c.value;}));
+    if(!selected.size){watchToggle.checked=false;active=false;toggleLabel.textContent='Đang tắt';statusText('Bạn hãy chọn ít nhất một ứng dụng trước khi bật.');return;}
+    if(!consent.checked){watchToggle.checked=false;active=false;toggleLabel.textContent='Đang tắt';statusText('Cần xác nhận đồng ý trước khi bật giám sát.');return;}
+    active=true;toggleLabel.textContent='Đang bật';
+    if('Notification' in window && Notification.permission==='default'){
+      try{await Notification.requestPermission();}catch(e){}
+    }
+    statusText('Đã bật theo lựa chọn: '+Array.from(selected).join(', ')+'. Đang chờ nguồn thông báo được kết nối.');
+  }
+  watchToggle.addEventListener('change',function(){
+    if(watchToggle.checked){enableWatch();}
+    else{active=false;toggleLabel.textContent='Đang tắt';statusText('Đã tắt giám sát. Không phân tích thông báo mới.');}
+  });
+  consent.addEventListener('change',function(){if(!consent.checked&&watchToggle.checked){watchToggle.checked=false;active=false;toggleLabel.textContent='Đang tắt';statusText('Giám sát đã tắt vì bạn thu hồi xác nhận.');}});
+  appChecks.forEach(function(c){c.addEventListener('change',function(){if(active){selected=new Set(appChecks.filter(function(x){return x.checked;}).map(function(x){return x.value;}));statusText('Danh sách theo dõi đã cập nhật: '+Array.from(selected).join(', '));}})});
+  document.getElementById('soundTest').addEventListener('click',function(){if(!soundToggle.checked){statusText('Hãy bật Âm báo để thử âm thanh.');return;}beep();});
+
+  window.ScamShield=window.ScamShield||{};
+  window.ScamShield.receiveNotification=function(app,text){
+    scanNotice(String(app||''),String(text||''));
+  };
+})();
+
+// Tài khoản demo cục bộ: chỉ lưu trong trình duyệt hiện tại, không đồng bộ server.
+(function(){
+  const $=id=>document.getElementById(id);
+  const form=$('accountForm'), nameInput=$('accountName'), emailInput=$('accountEmail'), passInput=$('accountPassword');
+  const status=$('authStatus'), registerTab=$('registerTab'), loginTab=$('loginTab');
+  let mode='register';
+  const STORE='scamshield_local_account_v1', SESSION='scamshield_local_session_v1';
+  function say(text,ok){status.textContent=text;status.style.color=ok?'var(--ok)':'var(--wn)';}
+  function readAccount(){try{return JSON.parse(localStorage.getItem(STORE)||'null')}catch(_){return null}}
+  function switchMode(next){
+    mode=next; const registering=mode==='register';
+    registerTab.classList.toggle('active',registering);loginTab.classList.toggle('active',!registering);
+    registerTab.setAttribute('aria-selected',String(registering));loginTab.setAttribute('aria-selected',String(!registering));
+    nameInput.hidden=!registering;nameInput.required=registering;$('nameLabel').hidden=!registering;
+    passInput.autocomplete=registering?'new-password':'current-password';
+    $('authHeading').textContent=registering?'Tạo không gian ScamShield của riêng bạn.':'Chào mừng bạn quay lại ScamShield.';
+    $('accountSubmit').textContent=registering?'Tạo tài khoản':'Đăng nhập';
+    say(registering?'Điền thông tin để tạo tài khoản trên trình duyệt này.':'Nhập email và mật khẩu đã đăng ký trên trình duyệt này.',true);
+  }
+  function showSession(account){
+    $('accountForm').hidden=true;$('accountSession').hidden=false;
+    $('sessionName').textContent=account.name;$('sessionEmail').textContent=account.email;
+    $('accountAvatar').textContent=(account.name||'S').trim().charAt(0).toUpperCase();
+    say('Bạn đã đăng nhập trên thiết bị này.',true);
+  }
+  function showForm(){form.hidden=false;$('accountSession').hidden=true;switchMode('login');}
+  function toBytes(hex){return Uint8Array.from(hex.match(/.{2}/g)||[],x=>parseInt(x,16))}
+  function hex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('')}
+  async function hashPassword(password,saltHex){
+    if(!crypto.subtle) throw new Error('Trình duyệt cần HTTPS để bảo vệ thao tác mật khẩu.');
+    const salt=saltHex?toBytes(saltHex):crypto.getRandomValues(new Uint8Array(16));
+    const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);
+    const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:salt,iterations:120000,hash:'SHA-256'},key,256);
+    return {salt:hex(salt),hash:hex(bits)};
+  }
+  registerTab.addEventListener('click',()=>switchMode('register'));
+  loginTab.addEventListener('click',()=>switchMode('login'));
+  $('headerLogin').addEventListener('click',()=> $('authCard').scrollIntoView({behavior:'smooth',block:'center'}));
+  $('logoutButton').addEventListener('click',()=>{localStorage.removeItem(SESSION);showForm();say('Bạn đã đăng xuất.',true)});
+  form.addEventListener('submit',async function(ev){
+    ev.preventDefault();const email=emailInput.value.trim().toLowerCase(),password=passInput.value;
+    $('accountSubmit').disabled=true;
+    try{
+      const account=readAccount();
+      if(mode==='register'){
+        const name=nameInput.value.trim();
+        if(name.length<2){say('Tên hiển thị cần ít nhất 2 ký tự.');return}
+        if(password.length<8){say('Mật khẩu cần ít nhất 8 ký tự.');return}
+        if(account&&account.email===email){say('Email này đã đăng ký trên trình duyệt. Hãy đăng nhập.');switchMode('login');return}
+        const digest=await hashPassword(password);
+        const record={name,email,salt:digest.salt,passwordHash:digest.hash,createdAt:new Date().toISOString()};
+        localStorage.setItem(STORE,JSON.stringify(record));localStorage.setItem(SESSION,email);showSession(record);
+      }else{
+        if(!account||account.email!==email){say('Không tìm thấy tài khoản này trên trình duyệt. Hãy đăng ký trước.');return}
+        const digest=await hashPassword(password,account.salt);
+        if(digest.hash!==account.passwordHash){say('Email hoặc mật khẩu chưa chính xác.');return}
+        localStorage.setItem(SESSION,email);showSession(account);
+      }
+      passInput.value='';
+    }catch(err){say(err.message||'Không thể xử lý tài khoản. Vui lòng thử lại.')}
+    finally{$('accountSubmit').disabled=false}
+  });
+  const account=readAccount();
+  if(account&&localStorage.getItem(SESSION)===account.email)showSession(account);else switchMode('register');
+})();
+</script>
+<script id="ScamShieldPWA">
+// PWA: đăng ký service worker và nút cài đặt nhanh trên Android/Chrome
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (err) {
+      console.warn('Không đăng ký được service worker:', err);
+    });
+  });
+}
+
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.hidden = false;
+});
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.hidden = true;
+});
+</script>
+</body>
+</html>
